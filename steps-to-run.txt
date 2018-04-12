@@ -1,0 +1,15 @@
+docker build -t ravi627joshi/redis:v1 .
+docker push ravi627joshi/redis:v1
+
+kubectl create -f redis-cluster.yml --validate=false
+kubectl get pods
+
+Make the cluster:
+kubectl exec -it redis-cluster-0 -- redis-trib create --replicas 1 $(kubectl get pods -l app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 ')
+
+List all master & slave nodes:
+kubectl exec -it redis-cluster-0 redis-cli cluster nodes
+
+Delete service, configmap & statefulset:
+kubectl delete svc redis-cluster; kubectl delete configmap redis-cluster; kubectl delete statefulset redis-cluster
+
